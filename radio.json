@@ -29,8 +29,14 @@
     "praca" : "Penedo - Alagoas",
     "stream_url" : "https://stm16.painelcast.com:7206/stream?1788705660841"
   },
+  
   {
-    "nome": "Gazeta FM 98.3",
+    "nome" : "Metropolitana FM 97.7",
+    "praca" : "Maceió - Alagoas",
+    "stream_url" : "https://streaming.livespanel.com:8032/maceiofm?1788709616924"
+  },
+  {
+    "nome": "Mix FM 98.3",
     "praca": "Maceió - Alagoas'",
     "stream_url" : "https://virtues.live:8184/stream"
   },
@@ -53,6 +59,11 @@
     "nome" : "Jovem Pan FM 102.7",
     "praca" : "Maceió - Alagoas",
     "stream_url" : "https://streaming.livespanel.com:20520/?1788705953367"
+  },
+  {
+    "nome" : "Pajuçara FM 103.7",
+    "praca" : "Maceió - Alagoas",
+    "stream_url" : "https://cast3.hoost.com.br:8679/stream?1788709778568"
   },
   {
     "nome" : "Frances FM 106.1",
