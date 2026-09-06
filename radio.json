@@ -1,0 +1,42 @@
+[
+  {
+    "nome": "Farol FM 90.1 ",
+    "praca": "Maceió - Alagoas",
+    "stream_url": "https://s46.maxcast.com.br:8240/live"
+  },
+  {
+    "nome" : "Gazeta FM 94.1",
+    "praca": "Maceió - Alagoas",
+    "stream_url": "https://virtues.live:8144/stream"
+  },
+  {
+    "nome" : "Penedo FM 97.3",
+    "praca" : "Penedo - Alagoas",
+    "stream_url" : "https://stm16.painelcast.com:7206/stream?1788705660841"
+  },
+  {
+    "nome": "Gazeta FM 98.3",
+    "praca": "Maceió - Alagoas'",
+    "stream_url" : "https://virtues.live:8184/stream"
+  },
+  {
+    "nome": "AG FM 99.9",
+    "praca" : "União dos Palmares - Alagoas",
+    "stream_url" : "https://stm8.painelcast.com:7754/stream?1788705486532"
+  },
+  {
+    "nome": "Gazeta FM 101.3",
+    "praca": "Pão de Açucar",
+    "stream_url": "https://virtues.live:8216/stream"
+  },
+  {
+    "nome" : "Jovem Pan FM 102.7",
+    "praca" : "Maceió - Alagoas",
+    "stream_url" : "https://streaming.livespanel.com:20520/?1788705953367"
+  },
+  {
+    "nome" : "Mix FM 106.3",
+    "praca" : "São Paulo - SP",
+    "stream_url" : "https://27573.live.streamtheworld.com/MIXFM_SAOPAULOAAC.aac?dist=mix-web-player-radio-ao-vivo&911300.3034778864"
+  }
+]

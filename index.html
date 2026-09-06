@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Rádio Player Slide</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #181825;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .player-card {
+      width: 320px;
+      background: #1e1e2e;
+      border: 1px solid #313244;
+      border-radius: 12px;
+      padding: 15px 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+
+    .top-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .btn-action {
+      background: #313244;
+      color: #cdd6f4;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: bold;
+      text-transform: uppercase;
+      transition: background 0.2s;
+    }
+
+    .btn-action:hover { background: #45475a; }
+    .btn-play { background: #a6e3a1; color: #11111b; }
+    .btn-play:hover { background: #94e2d5; }
+
+    .slide-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+    }
+
+    .btn-arrow {
+      background: none;
+      border: none;
+      color: #f9e2af;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 0 10px;
+      user-select: none;
+    }
+
+    .btn-arrow:hover { color: #fff; }
+
+    .station-display {
+      text-align: center;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .station-name {
+      font-size: 16px;
+      font-weight: bold;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .station-rank {
+      font-size: 11px;
+      color: #a6adc8;
+      margin-top: 4px;
+    }
+
+    audio { display: none; }
+  </style>
+</head>
+<body>
+
+  <div class="player-card">
+    <!-- Linha Superior: Sair / Play / Mute -->
+    <div class="top-controls">
+      <button class="btn-action" onclick="sairApp()">Sair</button>
+      <button class="btn-action btn-play" id="playBtn" onclick="togglePlay()">PLAY</button>
+      <button class="btn-action" id="muteBtn" onclick="toggleMute()">Mute</button>
+    </div>
+
+    <hr style="border: 0; border-top: 1px solid #313244; margin: 10px 0;">
+
+    <!-- Linha do Slide: < RÁDIO > -->
+    <div class="slide-container">
+      <button class="btn-arrow" onclick="mudarRadio(-1)">&lt;</button>
+      
+      <div class="station-display">
+        <div class="station-name" id="radioName">Carregando...</div>
+        <div class="station-rank" id="radioInfo">#1 • IBOPE</div>
+      </div>
+
+      <button class="btn-arrow" onclick="mudarRadio(1)">&gt;</button>
+    </div>
+    
+    <hr style="border: 0; border-top: 1px solid #313244; margin: 10px 0;">
+  </div>
+
+  <audio id="audioPlayer" autoplay></audio>
+
+  <script>
+    const { ipcRenderer } = require('electron');
+
+    let radios = [];
+    let currentIndex = 0;
+    const player = document.getElementById('audioPlayer');
+
+    // Carrega o arquivo JSON local
+    async function initPlayer() {
+      try {
+        const response = await fetch('./radio.json');
+        radios = await response.json();
+        if (radios.length > 0) {
+          carregarRadio(currentIndex);
+        }
+      } catch (err) {
+        document.getElementById('radioName').innerText = "Erro no JSON";
+      }
+    }
+
+    // Atualiza os dados na tela e troca o áudio
+    function carregarRadio(index) {
+      const radio = radios[index];
+      document.getElementById('radioName').innerText = radio.nome;
+      document.getElementById('radioInfo').innerText = `${radio.praca}`;
+      
+      player.src = radio.stream_url;
+      player.play().then(() => {
+        document.getElementById('playBtn').innerText = 'PAUSE';
+      }).catch(() => {
+        document.getElementById('playBtn').innerText = 'PLAY';
+      });
+    }
+
+    // Função de navegação por Slide (< e >)
+    function mudarRadio(direcao) {
+      if (radios.length === 0) return;
+      
+      currentIndex += direcao;
+
+      // Loop infinito do slide
+      if (currentIndex < 0) {
+        currentIndex = radios.length - 1;
+      } else if (currentIndex >= radios.length) {
+        currentIndex = 0;
+      }
+
+      carregarRadio(currentIndex);
+    }
+
+    // Controles de Áudio
+    function togglePlay() {
+      if (player.paused) {
+        player.play();
+        document.getElementById('playBtn').innerText = 'PAUSE';
+      } else {
+        player.pause();
+        document.getElementById('playBtn').innerText = 'PLAY';
+      }
+    }
+
+    function toggleMute() {
+      player.muted = !player.muted;
+      document.getElementById('muteBtn').innerText = player.muted ? 'UNMUTE' : 'MUTE';
+    }
+
+    function sairApp() {
+      window.close();
+    }
+
+    // Iniciar o player ao carregar a página
+    initPlayer();
+  </script>
+</body>
+</html>
