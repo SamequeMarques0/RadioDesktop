@@ -18,10 +18,31 @@
     .player-card {
       width: 320px;
       background: #1e1e2e;
-      border: 1px solid #313244;
       border-radius: 12px;
       padding: 15px 20px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+
+      /* Borda RGB Animada */
+      border: 3px solid transparent;
+      background-image: 
+        linear-gradient(#1e1e2e, #1e1e2e), 
+        linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bfd, #7a00ff, #ff00c8, #ff0000);
+      background-origin: border-box;
+      background-clip: padding-box, border-box;
+      background-size: 200% 200%;
+      animation: rgbEffect 2s linear infinite;
+    }
+
+    @keyframes rgbEffect {
+      0% {
+        background-position: 0% 0%;
+      }
+      50% {
+        background-position: 100% 100%;
+      }
+      100% {
+        background-position: 0% 0%;
+      }
     }
 
     .top-controls {
@@ -45,8 +66,18 @@
     }
 
     .btn-action:hover { background: #45475a; }
-    .btn-play { background: #a6e3a1; color: #11111b; }
-    .btn-play:hover { background: #94e2d5; }
+
+    /* Estilo do Relógio no lugar do Play/Pause */
+    .clock-display {
+      font-size: 12px;
+      font-weight: bold;
+      color: #a6e3a1;
+      background: #313244;
+      padding: 6px 10px;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
+      user-select: none;
+    }
 
     .slide-container {
       display: flex;
@@ -93,16 +124,17 @@
 <body>
 
   <div class="player-card">
-    <!-- Linha Superior: Sair / Play / Mute -->
     <div class="top-controls">
       <button class="btn-action" onclick="sairApp()">Sair</button>
-      <button class="btn-action btn-play" id="playBtn" onclick="togglePlay()">PLAY</button>
+      
+      <!-- Relógio Digital substituindo o botão PLAY/PAUSE -->
+      <div class="clock-display" id="clock">00 Set / 00:00:00</div>
+      
       <button class="btn-action" id="muteBtn" onclick="toggleMute()">Mute</button>
     </div>
 
     <hr style="border: 0; border-top: 1px solid #313244; margin: 10px 0;">
 
-    <!-- Linha do Slide: < RÁDIO > -->
     <div class="slide-container">
       <button class="btn-arrow" onclick="mudarRadio(-1)">&lt;</button>
       
@@ -120,18 +152,40 @@
   <audio id="audioPlayer" autoplay></audio>
 
   <script>
-    const { ipcRenderer } = require('electron');
-
     let radios = [];
     let currentIndex = 0;
     const player = document.getElementById('audioPlayer');
 
-    // Carrega o arquivo JSON local
+    // Abreviaturas dos meses em PT-BR
+    const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+
+    // Atualiza o relógio a cada segundo
+    function atualizarRelogio() {
+      const agora = new Date();
+      const dia = String(agora.getDate()).padStart(2, '0');
+      const mes = meses[agora.getMonth()];
+      const horas = String(agora.getHours()).padStart(2, '0');
+      const minutos = String(agora.getMinutes()).padStart(2, '0');
+      const segundos = String(agora.getSeconds()).padStart(2, '0');
+
+      document.getElementById('clock').innerText = `${dia} ${mes} / ${horas}:${minutos}:${segundos}`;
+    }
+
+    setInterval(atualizarRelogio, 1000);
+    atualizarRelogio();
+
     async function initPlayer() {
       try {
-        const response = await fetch('./radio.json');
+        const response = await fetch('./radios.json');
         radios = await response.json();
+        
         if (radios.length > 0) {
+          // Recupera o índice salvo no localStorage (se existir)
+          const savedIndex = localStorage.getItem('lastStationIndex');
+          if (savedIndex !== null && savedIndex < radios.length) {
+            currentIndex = parseInt(savedIndex, 10);
+          }
+          
           carregarRadio(currentIndex);
         }
       } catch (err) {
@@ -139,27 +193,27 @@
       }
     }
 
-    // Atualiza os dados na tela e troca o áudio
     function carregarRadio(index) {
       const radio = radios[index];
       document.getElementById('radioName').innerText = radio.nome;
       document.getElementById('radioInfo').innerText = `${radio.praca}`;
       
+      // Salva a estação atual no cache local
+      localStorage.setItem('lastStationIndex', index);
+
       player.src = radio.stream_url;
-      player.play().then(() => {
-        document.getElementById('playBtn').innerText = 'PAUSE';
-      }).catch(() => {
-        document.getElementById('playBtn').innerText = 'PLAY';
+      
+      // Tenta reprodução automática
+      player.play().catch(err => {
+        console.log("Autoplay bloqueado até haver interação:", err);
       });
     }
 
-    // Função de navegação por Slide (< e >)
     function mudarRadio(direcao) {
       if (radios.length === 0) return;
       
       currentIndex += direcao;
 
-      // Loop infinito do slide
       if (currentIndex < 0) {
         currentIndex = radios.length - 1;
       } else if (currentIndex >= radios.length) {
@@ -167,17 +221,6 @@
       }
 
       carregarRadio(currentIndex);
-    }
-
-    // Controles de Áudio
-    function togglePlay() {
-      if (player.paused) {
-        player.play();
-        document.getElementById('playBtn').innerText = 'PAUSE';
-      } else {
-        player.pause();
-        document.getElementById('playBtn').innerText = 'PLAY';
-      }
     }
 
     function toggleMute() {
@@ -189,7 +232,6 @@
       window.close();
     }
 
-    // Iniciar o player ao carregar a página
     initPlayer();
   </script>
 </body>
