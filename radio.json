@@ -1,13 +1,28 @@
 [
   {
+    "nome": "Adore FM 89.3 ",
+    "praca": "Maceió - Alagoas",
+    "stream_url": "https://03.painelstreaming.com.br:27014/stream?1788709033769"
+  },
+  {
     "nome": "Farol FM 90.1 ",
     "praca": "Maceió - Alagoas",
     "stream_url": "https://s46.maxcast.com.br:8240/live"
   },
   {
+    "nome": "Difusora FM 93.3 ",
+    "praca": "Maceió - Alagoas",
+    "stream_url": "https://radio.saopaulo01.com.br/9348/stream?1788709156874"
+  },
+  {
     "nome" : "Gazeta FM 94.1",
     "praca": "Maceió - Alagoas",
     "stream_url": "https://virtues.live:8144/stream"
+  },
+    {
+    "nome" : "Tode Boa! FM 96",
+    "praca": "Maceió - Alagoas",
+    "stream_url": "https://streaming.livespanel.com:20096/radio96fm?1788708822338"
   },
   {
     "nome" : "Penedo FM 97.3",
@@ -25,6 +40,11 @@
     "stream_url" : "https://stm8.painelcast.com:7754/stream?1788705486532"
   },
   {
+    "nome": "Jovem Pan FM 100.7",
+    "praca": "Maceió - Alagoas",
+    "stream_url": "https://directradios.net/proxy/jpmaceio?mp=/stream&1788709460867"
+  },
+  {
     "nome": "Gazeta FM 101.3",
     "praca": "Pão de Açucar",
     "stream_url": "https://virtues.live:8216/stream"
@@ -33,6 +53,11 @@
     "nome" : "Jovem Pan FM 102.7",
     "praca" : "Maceió - Alagoas",
     "stream_url" : "https://streaming.livespanel.com:20520/?1788705953367"
+  },
+  {
+    "nome" : "Frances FM 106.1",
+    "praca" : "Maceió - Alagoas",
+    "stream_url" : "https://27363.live.streamtheworld.com/FRANCESFM_MACAAC.aac?dist=RadiosNet&1788709221474"
   },
   {
     "nome" : "Mix FM 106.3",
