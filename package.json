@@ -1,6 +1,6 @@
 {
-  "name": "radio-brasileira-app",
-  "version": "1.0.0",
+  "name": "DESKRADIO",
+  "version": "1.0.1",
   "main": "main.js",
   "scripts": {
     "start": "electron ."
