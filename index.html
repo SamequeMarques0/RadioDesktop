@@ -248,7 +248,7 @@
     function carregarRadio(index) {
       const radio = radios[index];
       document.getElementById('radioName').innerText = radio.nome;
-      document.getElementById('radioInfo').innerText = `#${radio.rank} • ${radio.praca}`;
+      document.getElementById('radioInfo').innerText = `${radio.praca}`;
       
       localStorage.setItem('lastStationIndex', index);
 
