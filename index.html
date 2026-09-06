@@ -6,15 +6,14 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      /* background: #181825; */
-      background: transparent !important;
-      overflow: hidden;
+      background: transparent;
       color: #fff;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
       margin: 0;
+      overflow: hidden;
     }
 
     .player-card {
@@ -24,6 +23,9 @@
       padding: 15px 20px;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
 
+      /* Permite mover a janela sem bordas */
+      -webkit-app-region: drag;
+
       /* Borda RGB Animada */
       border: 3px solid transparent;
       background-image: 
@@ -32,26 +34,20 @@
       background-origin: border-box;
       background-clip: padding-box, border-box;
       background-size: 200% 200%;
-      animation: rgbEffect 3s linear infinite;
+      animation: rgbEffect 2s linear infinite;
     }
 
     @keyframes rgbEffect {
-      0% {
-        background-position: 0% 0%;
-      }
-      50% {
-        background-position: 100% 100%;
-      }
-      100% {
-        background-position: 0% 0%;
-      }
+      0% { background-position: 0% 0%; }
+      50% { background-position: 100% 100%; }
+      100% { background-position: 0% 0%; }
     }
 
     .top-controls {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
+      margin-bottom: 15px;
     }
 
     .btn-action {
@@ -65,11 +61,11 @@
       font-weight: bold;
       text-transform: uppercase;
       transition: background 0.2s;
+      -webkit-app-region: no-drag;
     }
 
     .btn-action:hover { background: #45475a; }
 
-    /* Estilo do Relógio no lugar do Play/Pause */
     .clock-display {
       font-size: 12px;
       font-weight: bold;
@@ -85,7 +81,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px 0;
+      padding: 5px 0;
     }
 
     .btn-arrow {
@@ -96,6 +92,7 @@
       cursor: pointer;
       padding: 0 10px;
       user-select: none;
+      -webkit-app-region: no-drag;
     }
 
     .btn-arrow:hover { color: #fff; }
@@ -120,6 +117,48 @@
       margin-top: 4px;
     }
 
+    /* Container e Input de Volume */
+    .volume-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 5px 0 0 0;
+      -webkit-app-region: no-drag;
+    }
+
+    .volume-slider {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: #313244;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .volume-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #f9e2af;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+
+    .volume-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    .volume-text {
+      font-size: 11px;
+      color: #a6adc8;
+      width: 32px;
+      text-align: right;
+      font-weight: bold;
+    }
+
     audio { display: none; }
   </style>
 </head>
@@ -128,10 +167,7 @@
   <div class="player-card">
     <div class="top-controls">
       <button class="btn-action" onclick="sairApp()">Sair</button>
-      
-      <!-- Relógio Digital substituindo o botão PLAY/PAUSE -->
       <div class="clock-display" id="clock">00 Set / 00:00:00</div>
-      
       <button class="btn-action" id="muteBtn" onclick="toggleMute()">Mute</button>
     </div>
 
@@ -149,6 +185,13 @@
     </div>
     
     <hr style="border: 0; border-top: 1px solid #313244; margin: 10px 0;">
+
+    <!-- Barra de Controle de Volume -->
+    <div class="volume-container">
+      <span style="font-size: 12px; color: #a6adc8;">🔊</span>
+      <input type="range" id="volumeControl" class="volume-slider" min="0" max="100" value="80" oninput="alterarVolume(this.value)">
+      <span class="volume-text" id="volumeVal">80%</span>
+    </div>
   </div>
 
   <audio id="audioPlayer" autoplay></audio>
@@ -157,11 +200,11 @@
     let radios = [];
     let currentIndex = 0;
     const player = document.getElementById('audioPlayer');
+    const volumeControl = document.getElementById('volumeControl');
+    const volumeVal = document.getElementById('volumeVal');
 
-    // Abreviaturas dos meses em PT-BR
     const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
 
-    // Atualiza o relógio a cada segundo
     function atualizarRelogio() {
       const agora = new Date();
       const dia = String(agora.getDate()).padStart(2, '0');
@@ -181,13 +224,20 @@
         const response = await fetch('./radios.json');
         radios = await response.json();
         
+        // Carrega a preferência de volume salva
+        const savedVolume = localStorage.getItem('playerVolume');
+        if (savedVolume !== null) {
+          volumeControl.value = savedVolume;
+          alterarVolume(savedVolume);
+        } else {
+          alterarVolume(80); // Padrão 80%
+        }
+
         if (radios.length > 0) {
-          // Recupera o índice salvo no localStorage (se existir)
           const savedIndex = localStorage.getItem('lastStationIndex');
           if (savedIndex !== null && savedIndex < radios.length) {
             currentIndex = parseInt(savedIndex, 10);
           }
-          
           carregarRadio(currentIndex);
         }
       } catch (err) {
@@ -198,16 +248,13 @@
     function carregarRadio(index) {
       const radio = radios[index];
       document.getElementById('radioName').innerText = radio.nome;
-      document.getElementById('radioInfo').innerText = `${radio.praca}`;
+      document.getElementById('radioInfo').innerText = `#${radio.rank} • ${radio.praca}`;
       
-      // Salva a estação atual no cache local
       localStorage.setItem('lastStationIndex', index);
 
       player.src = radio.stream_url;
-      
-      // Tenta reprodução automática
       player.play().catch(err => {
-        console.log("Autoplay bloqueado até haver interação:", err);
+        console.log("Autoplay aguardando interação:", err);
       });
     }
 
@@ -225,9 +272,32 @@
       carregarRadio(currentIndex);
     }
 
+    // Função para alterar o volume dinamicamente
+    function alterarVolume(valor) {
+      const volumeFloat = valor / 100;
+      player.volume = volumeFloat;
+      volumeVal.innerText = `${valor}%`;
+      
+      // Se o usuário ajustar o slider manualmente enquanto estiver Mute, remove o Mute
+      if (player.muted && valor > 0) {
+        player.muted = false;
+        document.getElementById('muteBtn').innerText = 'MUTE';
+      }
+
+      localStorage.setItem('playerVolume', valor);
+    }
+
     function toggleMute() {
       player.muted = !player.muted;
-      document.getElementById('muteBtn').innerText = player.muted ? 'UNMUTE' : 'MUTE';
+      const muteBtn = document.getElementById('muteBtn');
+
+      if (player.muted) {
+        muteBtn.innerText = 'UNMUTE';
+        volumeVal.innerText = '0%';
+      } else {
+        muteBtn.innerText = 'MUTE';
+        volumeVal.innerText = `${volumeControl.value}%`;
+      }
     }
 
     function sairApp() {
